@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Company>https://github.com/fel88</Company>
+    <Description>C# port of dagre-d3</Description>
+    <PackageProjectUrl></PackageProjectUrl>
+    <Authors>fel88</Authors>
+    <RepositoryUrl>https://github.com/fel88/Dagre.NET</RepositoryUrl>
+    <PackageTags>dagre, graph, layout</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+  </ItemGroup>
+
+</Project>
