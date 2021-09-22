@@ -3,12 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Company>https://github.com/fel88</Company>
-    <Description>C# port of dagre-d3</Description>
+    <Description>C# port of dagre (https://github.com/dagrejs/dagre)</Description>
     <PackageProjectUrl></PackageProjectUrl>
     <Authors>fel88</Authors>
     <RepositoryUrl>https://github.com/fel88/Dagre.NET</RepositoryUrl>
     <PackageTags>dagre, graph, layout</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>1.0.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
