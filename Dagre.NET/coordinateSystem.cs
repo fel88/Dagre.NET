@@ -42,11 +42,11 @@
             }
         }
 
-        public static void swapXYOne(DagreBase attrs)
+        public static void swapXYOne(dynamic attrs)
         {
-            var x = attrs.x;
-            attrs.x = attrs.y;
-            attrs.y = x;
+            var x = attrs["x"];
+            attrs["x"] = attrs["y"];
+            attrs["y"] = x;
         }
 
         public static void swapXY(DagreGraph g)
@@ -59,12 +59,12 @@
             foreach (var e in g.edges())
             {
                 var edge = g.edge(e);
-                foreach (var item in edge.points)
+                foreach (var item in edge["points"])
                 {
                     swapXYOne(item);
                 }
 
-                if (edge.x != null)
+                if (edge.ContainsKey("x"))
                 {
                     swapXYOne(edge);
                 }
@@ -84,9 +84,12 @@
 
         public static void swapWidthHeightOne(dynamic attrs)
         {
-            var w = attrs["width"];
-            attrs["width"] = attrs["height"];
-            attrs["height"] = w;
+            if (attrs.ContainsKey("width"))
+            {
+                var w = attrs["width"];
+                attrs["width"] = attrs["height"];
+                attrs["height"] = w;
+            }
         }
 
         public static void swapWidthHeight(dynamic g)

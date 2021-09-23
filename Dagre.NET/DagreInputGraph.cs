@@ -8,6 +8,8 @@ namespace Dagre
         List<DagreInputNode> nodes = new List<DagreInputNode>();
         List<DagreInputEdge> edges = new List<DagreInputEdge>();
 
+        public bool VerticalLayout { get; set; } = true;
+
         public DagreInputNode GetNode(object tag)
         {
             return nodes.FirstOrDefault(z => z.Tag == tag);
@@ -99,7 +101,11 @@ namespace Dagre
             dg.graph()["ranksep"] = 20;
             dg.graph()["edgesep"] = 20;
             dg.graph()["nodesep"] = 25;
-            dg.graph()["rankdir"] = "tb";
+            if (VerticalLayout)
+                dg.graph()["rankdir"] = "tb";
+            else
+                dg.graph()["rankdir"] = "lr";
+
             DagreLayout.runLayout(dg);
 
             //back
