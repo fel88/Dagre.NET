@@ -11,25 +11,15 @@ namespace Dagre
         bool _isFreezed;
 
 
-        //public ICollection<string> Keys => dic.Keys;
+        
         public ICollection<string> Keys
         {
-            get
-            {
-                if (keysCached != null && !dirty)
-                {
-                    return keysCached;
-                }
-                dirty = false;
-                var l = orderedList.Select(z => z.Key).ToList();
-                var dgts = l.Where(z => z.All(char.IsDigit)).Where(z => (int.Parse(z) + "") == z).OrderBy(int.Parse).ToArray();
-                l = dgts.Union(l.Except(dgts)).ToList();
-                keysCached = l;
-                return l;
-            }
+            get => commonKeys;
         }
-        bool dirty = true;
-        List<string> keysCached;
+
+        List<string> commonKeys = new List<string>();
+        List<int> digitsKeys = new List<int>();        
+        List<string> otherKeys = new List<string>();
 
         public ICollection<object> Values
         {
@@ -45,7 +35,73 @@ namespace Dagre
             }
 
         }
+        void deleteKey(string key)
+        {
+            if (key.All(char.IsDigit) && int.Parse(key).ToString() == key)
+            {
+                var ind = binSearchInsertIndex(int.Parse(key));
+                digitsKeys.RemoveAt(ind);                
+                commonKeys.RemoveAt(ind);
+            }
+            else
+            {
+                otherKeys.Remove(key);
+                commonKeys.Remove(key);
+            }
+        }
+        void insertKey(string key)
+        {
+            if (key.All(char.IsDigit) && int.Parse(key).ToString() == key)
+            {
+                var v = int.Parse(key);
+                //binsearch
+                int index = binSearchInsertIndex(v);
+                digitsKeys.Insert(index, v);                
+                commonKeys.Insert(index, key);
+            }
+            else
+            {
+                otherKeys.Add(key);
+                commonKeys.Add(key);
+            }
+        }
 
+        private int binSearchInsertIndex(int key)
+        {
+
+            int low = 0;
+
+            int high = digitsKeys.Count;
+            while (true)
+            {
+                if (low >= high) break;
+                var m = (high - low) / 2 + low;
+                if (digitsKeys[m] < key)
+                {
+                    if (low == m)
+                    {
+                        return low + 1;
+                    }
+                    low = m;
+                }
+                else if (digitsKeys[m] == key)
+                {
+                    throw new DagreException("duplicate key");
+                }
+                else
+                {
+                    if (high == m)
+                    {
+                        throw new DagreException("err");
+
+                    }
+                    high = m;
+                }
+
+            }
+            return low;
+
+        }
         public int Count => dic.Count;
 
         public bool IsReadOnly => throw new System.NotImplementedException();
@@ -68,23 +124,13 @@ namespace Dagre
             if (dic.ContainsKey(key))
             {
                 dic[key] = val;
-                //var ind1 = orderedList.IndexOf(fr);
-                var ind1 = orderedListIndexes[key];
-                orderedList.RemoveAt(ind1);
-                orderedList.Insert(ind1, new KeyValuePair<string, object>(key, val));
-
                 return;
-            }
-            dirty = true;
+            }            
 
             dic.Add(key, val);
-            orderedList.Add(new KeyValuePair<string, object>(key, val));
-            orderedListIndexes.Add(key, orderedList.Count - 1);
-            if (dic.Keys.Count != orderedList.Count) throw new DagreException();
+            insertKey(key);            
         }
-
-        List<KeyValuePair<string, object>> orderedList = new List<KeyValuePair<string, object>>();
-        Dictionary<string, int> orderedListIndexes = new Dictionary<string, int>();
+                
         public override string ToString()
         {
             return $"dic ({dic.Keys.Count})";
@@ -97,28 +143,16 @@ namespace Dagre
 
         public void Add(string key, object value)
         {
-            if (_isFreezed) throw new DagreException("can't add to frozen object");
-            dirty = true;
-            orderedList.Add(new KeyValuePair<string, object>(key, value));
-            orderedListIndexes.Add(key, orderedList.Count - 1);
+            if (_isFreezed) throw new DagreException("can't add to frozen object");            
             dic.Add(key, value);
-            if (dic.Keys.Count != orderedList.Count) throw new DagreException();
+            insertKey(key);            
         }
 
         public bool Remove(string key)
         {
-            if (_isFreezed) throw new DagreException("can't remove from frozen object");
-            var ind1 = orderedListIndexes[key];
-            dirty = true;
-            orderedList.RemoveAt(ind1);
-            orderedListIndexes.Remove(key);
-            for (int i = 0; i < orderedList.Count; i++)
-            {
-                orderedListIndexes[orderedList[i].Key] = i;
-            }
-
-            var ret = dic.Remove(key);
-            if (dic.Keys.Count != orderedList.Count) throw new DagreException();
+            if (_isFreezed) throw new DagreException("can't remove from frozen object");            
+            deleteKey(key);
+            var ret = dic.Remove(key);            
             return ret;
         }
 
@@ -129,22 +163,18 @@ namespace Dagre
 
         public void Add(KeyValuePair<string, object> item)
         {
-            if (_isFreezed) return;
-            dirty = true;
+            if (_isFreezed) return;            
             dic.Add(item.Key, item.Value);
-            orderedList.Add(new KeyValuePair<string, object>(item.Key, item.Value));
-            orderedListIndexes.Add(item.Key, orderedList.Count - 1);
-            if (dic.Keys.Count != orderedList.Count) throw new DagreException();
+            insertKey(item.Key);            
         }
 
         public void Clear()
         {
             dic.Clear();
-            orderedList.Clear();
-            dirty = true;
+            otherKeys.Clear();
+            digitsKeys.Clear();
+            commonKeys.Clear();            
         }
-
-
 
         public bool Contains(KeyValuePair<string, object> item)
         {

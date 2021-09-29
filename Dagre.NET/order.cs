@@ -29,7 +29,7 @@ namespace Dagre
         }*/
 
 
-        public static void _order(DagreGraph g)
+        public static void _order(DagreGraph g, Action<float> progress = null)
         {
             List<DagreGraph> downLayerGraphs = new List<DagreGraph>();
             List<DagreGraph> upLayerGraphs = new List<DagreGraph>();
@@ -39,9 +39,10 @@ namespace Dagre
             {
                 downLayerGraphs.Add(buildLayerGraph(g, i + 1, "inEdges"));
                 upLayerGraphs.Add(buildLayerGraph(g, rank - i - 1, "outEdges"));
+                progress?.Invoke((float)i / rank);
             }
 
-            
+
 
             dynamic layering = initOrder(g) as object[][];
             assignOrder(g, layering);

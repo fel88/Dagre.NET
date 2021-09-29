@@ -449,16 +449,16 @@ namespace Dagre
 
         }
 
-    
 
-        internal DagreGraph setDefaultNodeLabel(Func<object, dynamic> p)
+
+        public DagreGraph setDefaultNodeLabel(Func<object, dynamic> p)
         {
             _defaultNodeLabelFn = p;
             return this;
         }
 
-     
-      
+        
+
         public void LoadJson(object des)
         {
 
@@ -1342,7 +1342,7 @@ namespace Dagre
 
         int _nodeCount;
 
-        internal DagreGraph setGraph(object v)
+        public DagreGraph setGraph(object v)
         {
             _label = v;
             return this;
