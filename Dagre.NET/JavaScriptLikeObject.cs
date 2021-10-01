@@ -118,6 +118,8 @@ namespace Dagre
         {
             _isFreezed = true;
         }
+        public object Tag;
+        public RankTag RankTag;
         public void AddOrUpdate(string key, object val)
         {
             if (_isFreezed) throw new DagreException("can't add to frozen object");

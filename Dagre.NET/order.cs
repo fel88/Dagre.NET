@@ -232,7 +232,19 @@ namespace Dagre
             foreach (var v in g.nodes())
             {
                 var node = g.node(v);
-                if (node["rank"] == rank || (node.ContainsKey("minRank") && node.ContainsKey("maxRank") && node["minRank"] <= rank && rank <= node["maxRank"]))
+                RankTag rtag = null;
+                
+                if (node.RankTag == null)
+                {
+                    rtag = node.RankTag = new RankTag();
+                    rtag.Rank = (int)node["rank"];
+                    if (node.ContainsKey("minRank"))
+                        rtag.MinRank = (int)node["minRank"];
+                    if (node.ContainsKey("maxRank"))
+                        rtag.MaxRank = (int)node["maxRank"];
+                }
+                rtag = node.RankTag;                
+                if (rtag.Rank == rank || (rtag.MinRank != null && rtag.MaxRank != null && rtag.MinRank <= rank && rank <= rtag.MaxRank))
                 {
                     graph.setNode(v);
                     var parent = g.parent(v);
@@ -260,7 +272,7 @@ namespace Dagre
                         j.Add("weight", g.edge(e)["weight"] + weight);
                         graph.setEdge(new object[] { u, v, j });
                     }
-                    if (node.ContainsKey("minRank"))
+                    if (rtag.MinRank != null)
                     {
                         var jj = new JavaScriptLikeObject();
                         jj.Add("borderLeft", node["borderLeft"][rank]);
@@ -450,6 +462,12 @@ namespace Dagre
         public string v;
         public int? barycenter = null;
         public int weight;
+    }
+    public class RankTag
+    {
+        public int Rank;
+        public int? MinRank;
+        public int? MaxRank;
     }
 
 }
