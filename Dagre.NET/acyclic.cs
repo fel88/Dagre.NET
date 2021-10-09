@@ -48,23 +48,22 @@ namespace Dagre
             {
                 var label = g.edge(e);
                 g.removeEdge(e);
-                label.forwardName = e.name;
-                label.reversed = true;
+                label["forwardName"] = e["name"];
+                label["reversed"] = true;
 
                 g.setEdge(new object[] { e["w"], e["v"], label, util.uniqueId("rev") });
 
             }
-
-
         }
+
         public static DagreEdgeIndex[] greedyFAS(DagreGraph g, Func<string, int> wf)
         {
             throw new NotImplementedException();
         }
-        public static DagreEdgeIndex[] dfsFAS(DagreGraph g)
+        public static object[] dfsFAS(DagreGraph g)
         {
             HashSet<string> visited = new HashSet<string>();
-            List<DagreEdgeIndex> fas = new List<DagreEdgeIndex>();
+            List<object> fas = new List<object>();
             HashSet<string> stack = new HashSet<string>();
             Action<string> dfs = null;
             dfs = (v) =>

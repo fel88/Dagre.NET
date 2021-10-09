@@ -46,15 +46,15 @@ namespace Dagre
         }
         public static void mergeBarycenters(dynamic target, dynamic other)
         {
-            if (target.barycenter != null)
+            if (target.ContainsKey("barycenter"))
             {
-                target.barycenter = (target.barycenter * target.weight + other.barycenter * other.weight) / (target.weight + other.weight);
-                target.weight += other.weight;
+                target["barycenter"] = (target["barycenter"] * target["weight"] + other["barycenter"] * other["weight"]) / (target["weight"] + other["weight"]);
+                target["weight"] += other["weight"];
             }
             else
             {
-                target.barycenter = other.barycenter;
-                target.weight = other.weight;
+                target["barycenter"] = other["barycenter"];
+                target["weight"] = other["weight"];
             }
         }
         public static object sortSubraph(DagreGraph g, string v, DagreGraph cg, bool biasRight)
@@ -67,11 +67,7 @@ namespace Dagre
 
             if (bl != null)
             {
-                throw new NotImplementedException();
-                /*movable.Where(z => z != bl && z != br);
-                movable = _.filter(movable, function(w) {
-                    return w !== bl && w !== br;
-                });*/
+                movable = movable.Where(z => z != bl && z != br).ToArray();
             }
 
             dynamic barycenters = barycenter(g, movable);
@@ -99,15 +95,27 @@ namespace Dagre
                 {
                     if (subgraphs.ContainsKey(item))
                     {
-                        rett.Add(subgraphs[item]["vs"]);
+                        var a1 = subgraphs[item]["vs"];
+                        if (a1 is Array || a1 is IList)
+                        {
+                            rett.AddRange(a1);
+                        }
+                        else
+                            rett.Add(a1);
                     }
                     else
                     {
+                        if (item is Array || item is IList)
+                        {
+                            rett.AddRange(item);
+                        }
+                        else
                         rett.Add(item);
                     }
 
                 }
                 entry["vs"] = rett.ToArray();
+
                 /*entry["vs"] = v1.Select((v2) =>
                  {
 
@@ -125,17 +133,22 @@ namespace Dagre
             if (bl != null)
             {
                 //result.vs = [bl, result.vs, br].flat();
-                if (g.predecessors(bl).length)
+                List<object> ll = new List<object>();
+                ll.Add(bl);
+                ll.AddRange(result["vs"]);
+                ll.Add(br);
+                result["vs"] = ll;
+                if (g.predecessors(bl).Length != 0)
                 {
                     var blPred = g.node(g.predecessors(bl)[0]);
                     var brPred = g.node(g.predecessors(br)[0]);
                     if (!(result.ContainsKey("barycenter")))
                     {
-                        result.barycenter = 0;
-                        result.weight = 0;
+                        result["barycenter"] = 0;
+                        result["weight"] = 0;
                     }
-                    result.barycenter = (result.barycenter * result.weight + blPred.order + brPred.order) / (result.weight + 2);
-                    result.weight += 2;
+                    result["barycenter"] = (result["barycenter"] * result["weight"] + blPred["order"] + brPred["order"]) / (result["weight"] + 2);
+                    result["weight"] += 2;
                 }
             }
             /*var ar1 = (result["vs"] as List<object>);
@@ -196,7 +209,8 @@ namespace Dagre
             dynamic sum = 0;
             dynamic weight = 0;
             int vsIndex = 0;
-            sortable.Sort((entryV, entryW) => {
+            sortable.Sort((entryV, entryW) =>
+            {
                 dynamic v = ((dynamic)entryV)["barycenter"];
                 dynamic w = ((dynamic)entryW)["barycenter"];
                 if (v < w)
@@ -233,7 +247,7 @@ namespace Dagre
             //result.Add("vs", vs.flat());
             result.Add("vs", rr);
 
-            if (weight != null)
+            if (weight != null && weight != 0)
             {
                 result["barycenter"] = sum / (float)weight;
                 result["weight"] = weight;

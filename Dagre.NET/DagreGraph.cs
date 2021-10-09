@@ -12,7 +12,7 @@ namespace Dagre
             _isCompound = compound;
             if (compound)
             {
-                _children.Add(GRAPH_NODE as string, new Dictionary<string, object>());
+                _children.Add(GRAPH_NODE as string, new JavaScriptLikeObject());
             }
         }
 
@@ -25,13 +25,13 @@ namespace Dagre
 
         public void ClearNulls()
         {
-            var ar1 = _parent.Where(z => z.Value == GRAPH_NODE || z.Value == null).Select(z => z.Key).ToArray();
+            var ar1 = _parent.Where(z => (dynamic)(z.Value) == GRAPH_NODE || z.Value == null).Select(z => z.Key).ToArray();
             foreach (var item in ar1)
             {
                 _parent.Remove(item);
             }
-
         }
+
         public void CompareNodes(DagreGraph gr)
         {
             if (gr._nodeCount != _nodeCount) throw new DagreException();
@@ -219,6 +219,21 @@ namespace Dagre
             {
                 var key1 = _children.Keys.ToArray()[i];
                 if (!gr._children.ContainsKey(key1)) throw new DagreException();
+                dynamic v0 = _children[key1];
+                dynamic v1 = gr._children[key1];
+                if (v0.Keys.Count != v1.Keys.Count) throw new DagreException("wrong");
+                foreach (var item in v0.Keys)
+                {
+                    var vv0 = v0[item];
+                    var vv1 = v1[item];
+                    if (vv0 != vv1) throw new DagreException("wrong");
+                }
+            }
+            for (int i = 0; i < children().Length; i++)
+            {
+                var v0 = children()[i];
+                var v1 = gr.children()[i];
+                if (v0 != v1) throw new DagreException("wrong");
             }
             for (int i = 0; i < _successors.Keys.Count; i++)
             {
@@ -307,6 +322,10 @@ namespace Dagre
                         dynamic val1 = node1[key];
                         dynamic val2 = node2[key];
                         if (val1 is IDictionary<string, object>)
+                        {
+
+                        }
+                        else if (val1 is Array)
                         {
 
                         }
@@ -421,6 +440,7 @@ namespace Dagre
 
                 var res1 = gr.neighbors(key);
                 var res = neighbors(key);
+                if (res1 == null && res == null) continue;
                 for (int j = 0; j < res1.Length; j++)
                 {
                     if (res1[j] != res[j])
@@ -444,25 +464,17 @@ namespace Dagre
                     }
                 }
             }
-
             return true;
-
         }
-
-
 
         public DagreGraph setDefaultNodeLabel(Func<object, dynamic> p)
         {
             _defaultNodeLabelFn = p;
             return this;
-        }
-
-        
+        }        
 
         public void LoadJson(object des)
         {
-
-
             var d = des as Dictionary<string, object>;
             _children.Clear();
 
@@ -536,6 +548,17 @@ namespace Dagre
 
                             foreach (var edg in dic)
                             {
+                                JavaScriptLikeObject js = new JavaScriptLikeObject();
+                                if (edg.Value is IDictionary<string, object> dic1)
+                                {
+                                    foreach (var item1 in dic1)
+                                    {
+                                        js.Add(item1);
+                                    }
+                                    _nodesRaw.Add(edg.Key, js);
+
+                                }
+                                else
                                 _nodesRaw.Add(edg.Key, edg.Value);
                             }
                             break;
@@ -556,7 +579,17 @@ namespace Dagre
 
                             foreach (var edg in dic)
                             {
-                                _in.Add(edg.Key, edg.Value as Dictionary<string, object>);
+                                JavaScriptLikeObject js = new JavaScriptLikeObject();
+                                if (edg.Value is IDictionary<string, object> dic1)
+                                {
+                                    foreach (var item1 in dic1)
+                                    {
+                                        js.Add(item1);
+                                    }
+                                    _in.Add(edg.Key, js);
+                                }
+                                else
+                                    _in.Add(edg.Key, edg.Value);
                             }
                             break;
                         }
@@ -587,11 +620,24 @@ namespace Dagre
 
                             foreach (var edg in dic)
                             {
+                                JavaScriptLikeObject js = new JavaScriptLikeObject();
+                                if (edg.Value is IDictionary<string, object> dic1)
+                                {
+                                    foreach (var item1 in dic1)
+                                    {
+                                        js.Add(item1);
+                                    }
+                                    _parent.Add(edg.Key, js);
+                                }
+                                else
                                 _parent.Add(edg.Key, edg.Value);
+
+
                             }
                             break;
                         }
 
+                    case "_preds":
                     case "_predecessors":
                         {
                             var dic = item.Value as Dictionary<string, object>;
@@ -612,6 +658,8 @@ namespace Dagre
                             _edgeCount = (int)(item.Value);
                             break;
                         }
+                    case "_sucs":
+
                     case "_successors":
                         {
                             var dic = item.Value as Dictionary<string, object>;
@@ -624,6 +672,7 @@ namespace Dagre
                         }
                 }
             }
+            
             ClearNulls();
         }
 
@@ -781,31 +830,10 @@ namespace Dagre
             return v + EDGE_KEY_DELIM + w + EDGE_KEY_DELIM + (name == null ? DEFAULT_EDGE_NAME : name);
         }
 
-        public DagreEdgeIndex edgeArgsToObj(bool isDirectred, string v, string w, string name)
-        {
-
-            if (!isDirectred && int.Parse(v) > int.Parse(w))
-            {
-                var tmp = v;
-                v = w;
-                w = tmp;
-
-            }
-            var ret = new DagreEdgeIndex()
-            {
-                v = v,
-                w = w,
-                name = name
-            };
-            return ret;
-        }
+        
         public static string EDGE_KEY_DELIM = "\x01";//\x01
         public static string DEFAULT_EDGE_NAME = "\x00";//\x00
-
-        public object edgeObjToId(bool isDirectred, string v, string w, string name)
-        {
-            return new object();
-        }
+                
         public DagreLabel edge(DagreEdgeIndex v)
         {
             return edge(v.v, v.w, v.name);
@@ -819,14 +847,14 @@ namespace Dagre
             //return _edges[v];
         }
 
-        public bool PreserveOrder = false;
+        //public bool PreserveOrder = false;
         internal string[] neighbors(string v)
         {
             var preds = predecessors(v);
             if (preds != null)
             {
                 string[] ret = null;
-                if (!PreserveOrder)
+                /*if (!PreserveOrder)
                 {
                     ret = successors(v).OrderBy(z => z).ToArray();
                     var dgts = ret.Where(z => z.All(char.IsDigit)).ToArray();
@@ -835,7 +863,7 @@ namespace Dagre
                     Array.Sort(remains, (x, y) => string.CompareOrdinal(x, y));
                     ret = preds.Union(dgts.Union(remains)).ToArray();
                 }
-                else
+                else*/
                 {
                     ret = preds.Union(successors(v)).ToArray();
                 }
@@ -999,8 +1027,8 @@ namespace Dagre
             this._edgeObjs[e] = edgeObj;
             Action<dynamic, dynamic> incrementOrInitEntry = (map, k) =>
             {
-                var _map = map as Dictionary<string, object>;
-                var _k = k as Dictionary<string, object>;
+                var _map = map as IDictionary<string, object>;
+                var _k = k as IDictionary<string, object>;
                 if (_map.ContainsKey(k))
                 {
                     _map[k]++;
@@ -1054,10 +1082,7 @@ namespace Dagre
 
         public JavaScriptLikeObject _edgeObjs = new JavaScriptLikeObject();
 
-        private Func<object, object, object, object> _defaultEdgeLabelFn;
-
-
-
+        private Func<object, object, object, object> _defaultEdgeLabelFn = (x, y, z) => { return new JavaScriptLikeObject(); };
 
         //int _edgesCount = 0;
 
@@ -1104,7 +1129,7 @@ namespace Dagre
                 }
 
             }
-            else if (v == GRAPH_NODE)
+            else if ((dynamic)v == GRAPH_NODE)
             {
                 return nodes();
             }
@@ -1260,11 +1285,12 @@ namespace Dagre
 
         internal object[] inEdges(string v, string u = null)
         {
-            Dictionary<string, object> inV = null;
+            dynamic inV = null;
             if (_in.ContainsKey(v))
             {
                 inV = (dynamic)_in[v];
-                var edges = inV.Values.ToArray();
+                //var edges = inV.Values.ToArray();
+                var edges = inV.Values;
                 if (u == null)
                 {
                     return edges;
@@ -1284,14 +1310,14 @@ namespace Dagre
             {
                 if (o2 != null)
                 {
-                    _nodesRaw[v as string] = o2 as DagreNode;
+                    _nodesRaw[v as string] = o2;
 
                 }
                 return this;
             }
             else
             {
-                _nodesRaw.Add(v as string, o2 as DagreNode);
+                _nodesRaw.Add(v as string, o2);
             }
 
 
@@ -1304,7 +1330,7 @@ namespace Dagre
                 {
                     _children.Add(v as string, null);
                 }
-                _children[v as string] = new Dictionary<string, object>();
+                _children[v as string] = new JavaScriptLikeObject();
                 if (!_children.ContainsKey(GRAPH_NODE as string))
                 {
                     _children.Add(GRAPH_NODE as string, new JavaScriptLikeObject());
@@ -1313,10 +1339,10 @@ namespace Dagre
 
             }
 
-            addOrUpdate(v as string, _in, new Dictionary<string, object>());
-            addOrUpdate(v as string, _predecessors, new Dictionary<string, object>());
-            addOrUpdate(v as string, _out, new Dictionary<string, object>());
-            addOrUpdate(v as string, _successors, new Dictionary<string, object>());
+            addOrUpdate(v as string, _in, new JavaScriptLikeObject());
+            addOrUpdate(v as string, _predecessors, new JavaScriptLikeObject());
+            addOrUpdate(v as string, _out, new JavaScriptLikeObject());
+            addOrUpdate(v as string, _successors, new JavaScriptLikeObject());
 
 
 
@@ -1393,7 +1419,8 @@ namespace Dagre
         public JavaScriptLikeObject _successors = new JavaScriptLikeObject();
         public JavaScriptLikeObject _in = new JavaScriptLikeObject();
         public JavaScriptLikeObject _out = new JavaScriptLikeObject();
-        public static object GRAPH_NODE = "undefined";
+        //public static object GRAPH_NODE = "undefined";
+        public static string GRAPH_NODE = "\x00";
 
         public JavaScriptLikeObject _parent = new JavaScriptLikeObject();
         internal object parent(string v)
@@ -1402,7 +1429,7 @@ namespace Dagre
             {
                 if (_parent.ContainsKey(v))
                 {
-                    var parent = _parent[v];
+                    dynamic parent = _parent[v];
                     if (parent != GRAPH_NODE)
                         return parent;
                 }

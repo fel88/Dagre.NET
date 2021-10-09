@@ -6,5 +6,6 @@
         public DagreInputNode To;
         public float MinLen;
         public DagreCurvePoint[] Points;
+        public object Tag;
     }
 }

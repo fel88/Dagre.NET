@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Dagre
 {
+
     public class DagreInputGraph
     {
         List<DagreInputNode> nodes = new List<DagreInputNode>();
@@ -19,7 +20,11 @@ namespace Dagre
         {
             return edges.ToArray();
         }
-        public static bool ExceptionOnDuplicateEdge = true;
+        public DagreInputNode[] Nodes()
+        {
+            return nodes.ToArray();
+        }
+        public static bool ExceptionOnDuplicateEdge = false;
         public static bool ExceptionOnReverseDuplicateEdge = true;
         public DagreInputEdge GetEdge(DagreInputNode from, DagreInputNode to)
         {
@@ -44,7 +49,6 @@ namespace Dagre
                     return fr;
 
             }
-            
             if (to.Parents.Contains(from)) throw new DagreException("duplciate parent");
             to.Parents.Add(from);
             if (from.Childs.Contains(to)) throw new DagreException("duplciate child");
@@ -54,6 +58,7 @@ namespace Dagre
             return edge;
 
         }
+
 
         public void AddNode(DagreInputNode node)
         {
@@ -71,7 +76,14 @@ namespace Dagre
             AddNode(ret);
             return ret;
         }
+        public DagreInputGroup AddGroup(object tag = null)
+        {
+            var ret = new DagreInputGroup();
+            ret.Tag = tag;
 
+            AddNode(ret);
+            return ret;
+        }
         void check()
         {
             foreach (var item in nodes)
@@ -88,9 +100,9 @@ namespace Dagre
             check();
             DagreGraph dg = new DagreGraph(true);
 
-            var list1 = nodes.Where(z => z.Childs.Any() || z.Parents.Any()).ToList();
+            var list1 = nodes.Where(z => z is DagreInputGroup || z.Childs.Any() || z.Parents.Any()).ToList();
 
-            foreach (var gg in list1)
+            foreach (var gg in list1.Where(z => !(z is DagreInputGroup)))
             {
                 var ind = list1.IndexOf(gg);
                 dg.setNode(ind + "", new JavaScriptLikeObject());
@@ -99,8 +111,31 @@ namespace Dagre
                 nd["source"] = gg;
                 nd["width"] = gg.Width;
                 nd["height"] = gg.Height;
+            }
+
+            foreach (var gg in list1.Where(z => (z is DagreInputGroup)))
+            {
+                var ind = list1.IndexOf(gg);
+                dg.setNode(ind + "", new JavaScriptLikeObject());
+                var nd = dg.node(ind + "");
+
+                nd["source"] = gg;
+
+
+                nd["isGroup"] = true;
+                nd["width"] = 0;
+                nd["height"] = 0;
+
 
             }
+            foreach (var gg in list1.Where(z => z.Group != null && !(z is DagreInputGroup)))
+            {
+                var ind = list1.IndexOf(gg);
+                var nd = dg.node(ind.ToString());
+                var ind2 = list1.IndexOf(gg.Group);
+                dg.setParent(ind.ToString(), ind2.ToString());
+            }
+
             foreach (var gg in list1)
             {
                 var ind = list1.IndexOf(gg);
@@ -128,7 +163,6 @@ namespace Dagre
                 dg.graph()["rankdir"] = "tb";
             else
                 dg.graph()["rankdir"] = "lr";
-
             DagreLayout.runLayout(dg, (f) =>
             {
                 progress?.Invoke(f);
@@ -145,9 +179,10 @@ namespace Dagre
                 dynamic hh = node["height"];
                 n.X = (float)xx - (float)ww / 2;
                 n.Y = (float)yy - (float)hh / 2;
+                n.Width = (float)ww;
+                n.Height = (float)hh;
 
             }
-
 
             foreach (var item in dg.edges())
             {
@@ -162,6 +197,11 @@ namespace Dagre
 
                 src.Points = rr.ToArray();
             }
+        }
+
+    public void SetGroup(DagreInputNode node, DagreInputNode dagreInputNode)
+        {
+            node.Group = dagreInputNode;
         }
     }
 }

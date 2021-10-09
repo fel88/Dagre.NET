@@ -36,7 +36,7 @@ namespace Dagre
             var depths = treeDepths(g);
             Dictionary<string, int> d = new Dictionary<string, int>();
 
-            var height = depths.Max(z => z.Value) - 1;// Note: depths is an Object not an array
+            var height = ((dynamic)depths.Values.Max(z => z)) - 1;// Note: depths is an Object not an array
             var nodeSep = 2 * height + 1;
 
             g.graph()["nestingRoot"] = root;
@@ -71,12 +71,13 @@ namespace Dagre
         {
             var graphLabel = g.graph();
             g.removeNode(graphLabel["nestingRoot"]);
-            graphLabel["nestingRoot"] = null;
+            graphLabel.Remove("nestingRoot");
+            
 
             foreach (var e in g.edgesRaw())
             {
                 var edge = g.edgeRaw(e);
-                if (edge.ContainsKey("nesingEdge"))
+                if (edge.ContainsKey("nestingEdge"))
                 {
                     g.removeEdge(e);
                 }
@@ -85,19 +86,19 @@ namespace Dagre
         }
         static object generateEmptyWidHei()
         {
-            Dictionary<string, object> ret = new Dictionary<string, object>();
+            JavaScriptLikeObject ret = new JavaScriptLikeObject();
             ret.Add("width", 0);
             ret.Add("height", 0);
             return ret;
         }
-        public static void dfs(DagreGraph g, string root, int nodeSep, int weight, int height, Dictionary<string, int> depths, string v)
+        public static void dfs(DagreGraph g, string root, int nodeSep, int weight, int height, dynamic depths, string v)
         {
             var children = g.children(v);
             if (children == null || children.Length == 0)
             {
                 if (v != root)
                 {
-                    Dictionary<string, object> arg = new Dictionary<string, object>();
+                    JavaScriptLikeObject arg = new JavaScriptLikeObject();
                     arg.Add("weight", 0);
                     arg.Add("minlen", nodeSep);
                     g.setEdge(new object[] { root, v, arg });
@@ -115,6 +116,34 @@ namespace Dagre
             
             g.setParent(bottom, v);
             DagreGraph.addOrUpdate("borderBottom", label, bottom);
+
+            foreach (var child in children)
+            {
+                dfs(g, root, nodeSep, weight, height, depths, child);
+                var childNode = g.node(child);
+                var childTop = childNode.ContainsKey("borderTop") ? childNode["borderTop"] : child;
+                var childBottom = childNode.ContainsKey("borderBottom") ? childNode["borderBottom"] : child;
+                var thisWeight = childNode.ContainsKey("borderTop") ? weight : 2 * weight;
+                var minlen = childTop != childBottom ? 1 : height - depths[v] + 1;
+                JavaScriptLikeObject j1 = new JavaScriptLikeObject();
+                j1.Add("weight", thisWeight);
+                j1.Add("minlen", minlen);
+                j1.Add("nestingEdge", true);
+                g.setEdge(new object[] { top, childTop, j1 });
+                JavaScriptLikeObject j2 = new JavaScriptLikeObject();
+                j2.Add("weight", thisWeight);
+                j2.Add("minlen", minlen);
+                j2.Add("nestingEdge", true);
+                g.setEdge(new object[] { childBottom, bottom, j2 });
+                
+            }
+            if (g.parent(v) == null)
+            {
+                JavaScriptLikeObject j2 = new JavaScriptLikeObject();
+                j2.Add("weight", 0);
+                j2.Add("minlen", height + depths[v]);                
+                g.setEdge(new object[] { root, top, j2 });
+            }
         }
 
         public static int sumWeights(DagreGraph g)
@@ -127,9 +156,9 @@ namespace Dagre
 
         }
 
-        public static Dictionary<string, int> treeDepths(DagreGraph g)
+        public static JavaScriptLikeObject treeDepths(DagreGraph g)
         {
-            Dictionary<string, int> depths = new Dictionary<string, int>();
+            JavaScriptLikeObject depths = new JavaScriptLikeObject();
             Action<string, int> dfs = null;
             dfs = (v, depth) =>
             {

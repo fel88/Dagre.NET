@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/fel88/Dagre.NET</RepositoryUrl>
     <PackageTags>dagre, graph, layout</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>1.0.0.5</Version>
+    <Version>1.0.0.6</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

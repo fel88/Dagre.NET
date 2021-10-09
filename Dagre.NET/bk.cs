@@ -84,9 +84,9 @@ namespace Dagre
         }
 
 
-        public static dynamic entries(dynamic oo)
+        public static List<object> entries(dynamic oo)
         {
-            dynamic ret = new List<object>();
+            var ret = new List<object>();
             foreach (var item in oo.Keys)
             {
                 ret.Add(new object[] { item, oo[item] });
@@ -279,8 +279,17 @@ namespace Dagre
         {
             if (v is Array) return v;
             List<object> ret = new List<object>();
+            if (v is IDictionary<string, object>)
+            {
+                foreach (var item in v.Values)
+                {
+                    ret.Add(item);
+                }
+            }
+            else
             foreach (var item in v)
             {
+
                 if (item is Array)
                 {
                     List<object> ff = new List<object>();
@@ -292,7 +301,7 @@ namespace Dagre
 
                 }
                 else
-                    ret.Add(item.Value);
+                        ret.Add(item);
             }
             return ret;
         }
@@ -496,7 +505,7 @@ namespace Dagre
         }
         public static bool hasConflict(dynamic conflicts, dynamic v, dynamic w)
         {
-            if (string.CompareOrdinal(v, w) == 1)
+            if (string.CompareOrdinal(v, w) > 0)//v>w
             {
                 var tmp = v;
                 v = w;
@@ -599,7 +608,7 @@ namespace Dagre
                                    var uLabel = g.node(u);
                                    var uPos = uLabel["order"];
                                    if ((uPos < k0 || k1 < uPos) &&
-                                   !(uLabel.ContainsKey("dummy") && g.node(scanNode).ContainsKey("dummy") != null))
+                                   !(uLabel.ContainsKey("dummy") && g.node(scanNode).ContainsKey("dummy")))
                                    {
                                        addConflict(conflicts, u, scanNode);
                                    }
@@ -682,7 +691,7 @@ namespace Dagre
                         var predecessors = g.predecessors(v);
                         if (predecessors.Length != 0)
                         {
-                            nextNorthPos = g.node(predecessors[0]).order;
+                            nextNorthPos = g.node(predecessors[0])["order"];
                             scan(south, southPos, southLookahead, prevNorthPos, nextNorthPos);
                             southPos = southLookahead;
                             prevNorthPos = nextNorthPos;

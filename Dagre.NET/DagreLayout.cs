@@ -5,57 +5,7 @@ using System.Linq;
 namespace Dagre
 {
     public static class DagreLayout
-    {
-        /*public void layout(DagreGraph g)
-        {
-            var layoutGraph = buildLayoutGraph(g);
-            runLayout(layoutGraph);
-            updateInputGraph(g, layoutGraph);
-        }*/
-
-        /*
-         * Copies final layout information from the layout graph back to the input
-         * graph. This process only copies whitelisted attributes from the layout graph
-         * to the input graph, so it serves as a good place to determine what
-         * attributes can influence layout.
-         */
-        //private void updateInputGraph(DagreGraph inputGraph, DagreGraph layoutGraph)
-        //{
-        //    foreach (var v in inputGraph.nodes())
-        //    {
-        //        var inputLabel = inputGraph.node(v);
-        //        var layoutLabel = layoutGraph.node(v);
-
-        //        if (inputLabel != null)
-        //        {
-        //            inputLabel.x = layoutLabel.x;
-        //            inputLabel.y = layoutLabel.y;
-
-        //        }
-        //        if (layoutGraph.children(v).Length > 0)
-        //        {
-        //            inputLabel.width = layoutLabel.width;
-        //            inputLabel.height = layoutLabel.height;
-        //        }
-        //    }
-
-        //    foreach (var e in inputGraph.edges())
-        //    {
-        //        var inputLabel = inputGraph.edge(e);
-        //        var layoutLabel = layoutGraph.edge(e);
-        //        inputLabel.points = layoutLabel.points;
-        //        if (layoutLabel.x != null)
-        //        {
-        //            inputLabel.x = layoutLabel.x;
-        //            inputLabel.y = layoutLabel.y;
-        //        }
-        //    }
-
-        //    inputGraph.graph().width = layoutGraph.graph().width;
-        //    inputGraph.graph().height = layoutGraph.graph().height;
-
-        //}
-
+    {      
         /*
          * This idea comes from the Gansner paper: to account for edge labels in our
          * layout we split each rank in half by doubling minlen and halving ranksep.
@@ -87,140 +37,6 @@ namespace Dagre
             }
         }
 
-        public static object canonicalize(object attrs)
-        {
-            if (attrs is DagreLabel dl)
-            {
-                DagreLabel ret = new DagreLabel();
-                ret.nodesep = dl.nodesep;
-                ret.ranksep = dl.ranksep;
-                return ret;
-            }
-            if (attrs is DagreEdge de)
-            {
-                DagreEdge ret = new DagreEdge();
-                ret.forwardName = de.forwardName;
-                return de;
-            }
-            if (attrs is DagreNode dn)
-            {
-                DagreNode ret = new DagreNode();
-                ret.width = dn.width;
-                ret.height = dn.height;
-                return ret;
-            }
-            /*var newAttrs = { };
-            _.forEach(attrs, function(v, k) {
-                newAttrs[k.toLowerCase()] = v;
-            });
-            return newAttrs;*/
-            return new object();
-        }
-
-        public class GraphDefaults
-        {
-            public int edgesep = 20;
-            public int nodesep = 50;
-            public string rankdir = "tb";
-            public int ranksep = 50;
-        }
-
-
-        public static object merge(object[] list)
-        {
-            DagreLabel lab = new DagreLabel();
-            lab.edgesep = 20;
-            lab.nodesep = 25;
-            lab.rankdir = "tb";
-            lab.ranksep = 20;
-            return lab;
-            return new object();
-        }
-
-        public static object pick(object o1, object o2)
-        {
-            return new object();
-        }
-        public static object selectNumberAttrs(object label, string[] attrs)
-        {
-            //clone with selected args??
-            return label;
-        }
-
-        public static object defaults(object o1, object o2)
-        {
-            if (o1 is DagreNode dn)
-            {
-                if (o2 is NodeDefaults nd)
-                {
-                    if (dn.width == null)
-                    {
-                        dn.width = nd.width;
-                    }
-                    if (dn.height == null)
-                    {
-                        dn.height = nd.height;
-                    }
-                    return dn;
-                }
-                else
-                {
-                    throw new NotImplementedException();
-                }
-
-            }
-            throw new NotImplementedException();
-        }
-
-        public class EdgeDefaults
-        {
-            public int height = 0;
-            public int labeloffset = 10;
-            public string labelpos = "r";
-            public int minlen = 1;
-            public int weight = 1;
-            public int width = 0;
-        }
-        public class NodeDefaults
-        {
-            public int height = 0;
-            public int width = 0;
-        }
-        /*
-         * Constructs a new graph from the input graph, which can be used for layout.
-         * This process copies only whitelisted attributes from the input graph to the
-         * layout graph. Thus this function serves as a good place to determine what
-         * attributes can influence layout.
-         */
-        //public static DagreGraph buildLayoutGraph(DagreGraph inputGraph)
-        //{
-        //    string[] graphNumAttrs = new string[] { "nodesep", "edgesep", "ranksep", "marginx", "narginy" };
-        //    string[] edgeNumAttrs = new string[] { "minlen", "weight", "width", "height", "labeloffset" };
-        //    string[] nodeNumAttrs = new string[] { "width", "height" };
-        //    string[] graphAttrs = new string[] { "acyclicer", "ranker", "rankdir", "align" };
-        //    string[] edgeAttrs = new string[] { "labelpos" };
-        //    var g = new DagreGraph(true) { _isMultigraph = true, _isCompound = true };
-        //    var graph = canonicalize(inputGraph.graph());
-
-        //    g.setGraph(merge(new object[] { null, new GraphDefaults(), selectNumberAttrs(graph, graphNumAttrs), pick(graph, graphAttrs) }));
-
-
-        //    foreach (var v in inputGraph.nodesRaw())
-        //    {
-        //        var node = canonicalize(inputGraph.nodeRaw(v));
-        //        g.setNode(v, defaults(selectNumberAttrs(node, nodeNumAttrs), new NodeDefaults()));
-        //        g.setParent2(v, inputGraph.parent(v));
-        //    }
-
-
-        //    foreach (var e in inputGraph.edgesRaw())
-        //    {
-        //        var edge = canonicalize(inputGraph.edgeRaw(e));
-        //        g.setEdgeRaw(new object[] { e, merge(new object[] { null, new EdgeDefaults(), selectNumberAttrs(edge, edgeNumAttrs), pick(edge, edgeAttrs) }) });
-        //    }
-        //    return g;
-        //}
-
         public static void removeSelfEdges(DagreGraph g)
         {
             var ar = g.edgesRaw().ToArray();
@@ -247,14 +63,11 @@ namespace Dagre
             switch (res)
             {
                 case "network-simplex":
-                    throw new NotImplementedException();
-                    break;
+                    throw new NotImplementedException();                    
                 case "tight-tree":
-                    throw new NotImplementedException();
-                    break;
+                    throw new NotImplementedException();                    
                 case "longest-path":
-                    throw new NotImplementedException();
-                    break;
+                    throw new NotImplementedException();                    
                 default:
                     networkSimplexRanker(g);
                     break;
@@ -290,31 +103,52 @@ namespace Dagre
 
         public static void removeEmptyRanks(DagreGraph g)
         {
-            Dictionary<int, List<string>> layers = new Dictionary<int, List<string>>();
+            Dictionary<int, object> layers = new Dictionary<int, object>();
 
             // Ranks may not start at 0, so we need to offset them
             if (g.nodesRaw().Length > 0)
             {
-                var offset = g.nodesRaw().Select(v => g.nodeRaw(v)["rank"]).Min();
+                var offset = g.nodesRaw().Where(z => g.nodeRaw(z).ContainsKey("rank")).Select(v => g.nodeRaw(v)["rank"]).Min();
                 //var offset = _.min(_.map(g.nodes(), function(v) { return g.node(v).rank; }));
 
                 foreach (var v in g.nodesRaw())
                 {
-                    var rank = (g.nodeRaw(v)["rank"] - offset);
+                    if (!g.nodeRaw(v).ContainsKey("rank")) continue;
+                    var rank = -offset;
+
+                    rank += g.nodeRaw(v)["rank"];
                     if (!layers.ContainsKey(rank))
                     {
                         layers.Add(rank, new List<string>());
                     }
-                    layers[rank].Add(v);
+                    ((dynamic)layers[rank]).Add(v);
                 }
             }
 
             var delta = 0;
             var nodeRankFactor = g.graph()["nodeRankFactor"];
-            foreach (var pair in layers.OrderBy(z => z.Key))
+            for (int i = 0; i <= layers.Keys.Max(); i++)
+            {
+                if (!layers.ContainsKey(i) && i % nodeRankFactor != 0)
+                {
+                    --delta;
+                }
+                else if (delta != 0)
+                {
+                    if (layers.ContainsKey(i))
+                    {
+                        dynamic vs = layers[i];
+                        foreach (var v in vs)
+                        {
+                            g.nodeRaw(v)["rank"] += delta;
+                        }
+                    }
+                }
+            }
+            /* foreach (var pair in layers.OrderBy(z => z.Key))
             {
 
-                var vs = pair.Value;
+                 dynamic vs = pair.Value;
                 var i = pair.Key;
                 if (vs == null && i % nodeRankFactor != 0)
                 {
@@ -327,8 +161,9 @@ namespace Dagre
                         g.nodeRaw(v)["rank"] += delta;
                     }
                 }
-            }
+             }*/
         }
+
 
         public static void runLayout(DagreGraph g, Action<ExtProgressInfo> progress = null)        
         {
@@ -582,20 +417,21 @@ namespace Dagre
             foreach (var layer in layering)
             {
                 List<dynamic> oo = new List<dynamic>();
-                foreach (var item in layer)
+                foreach (var item in layer.Values)
                 {
-                    oo.Add((float)(g.node(item.Value)["height"]));
+                    oo.Add((float)(g.node(item)["height"]));
                 }
                 //var maxHeight = (layer as IEnumerable<object>).Select(v => g.node(v)["height"]).Max().Value;
                 var maxHeight = oo.Max();
-                foreach (var v in layer)
+                foreach (var v in layer.Values)
                 {
-                    g.node(v.Value)["y"] = prevY + maxHeight / 2f;
+                    g.node(v)["y"] = prevY + maxHeight / 2f;
                 }
 
                 prevY += maxHeight + rankSep;
             }
-            foreach (var item in bk.entries(bk.positionX(g)))
+            var list = bk.entries(bk.positionX(g));
+            foreach (var item in list)
             {
                 g.node(item[0])["x"] = item[1];
             }
@@ -613,12 +449,14 @@ namespace Dagre
                     var node = g.node(v);
                     var t = g.node(node["borderTop"]);
                     var b = g.node(node["borderBottom"]);
-                    var l = g.node(node["borderLeft"][node["borderLeft"].Count - 1]);
-                    var r = g.node(node["borderRight"][node["borderRight"].Count - 1]);
-                    node.width = Math.Abs(r.x - l.x);
-                    node.height = Math.Abs(b.y - t.y);
-                    node.x = l.x + node.width / 2;
-                    node.y = t.y + node.height / 2;
+                    var lastKey1 = node["borderLeft"].Keys[node["borderLeft"].Keys.Count - 1];
+                    var l = g.node(node["borderLeft"][lastKey1]);
+                    var lastKey2 = node["borderRight"].Keys[node["borderRight"].Keys.Count - 1];
+                    var r = g.node(node["borderRight"][lastKey2]);
+                    node["width"] = Math.Abs(r["x"] - l["x"]);
+                    node["height"] = Math.Abs(b["y"] - t["y"]);
+                    node["x"] = l["x"] + node["width"] / 2;
+                    node["y"] = t["y"] + node["height"] / 2;
                 }
             }
 
@@ -686,7 +524,7 @@ namespace Dagre
                 if (node.ContainsKey("borderTop"))
                 {
                     node["minRank"] = g.nodeRaw(node["borderTop"])["rank"];
-                    //node.maxRank = g.node(node.borderLeft).rank;
+                    node["maxRank"] = g.nodeRaw(node["borderBottom"])["rank"];
                     maxRank = Math.Max(maxRank, node["maxRank"]);
                 }
             }

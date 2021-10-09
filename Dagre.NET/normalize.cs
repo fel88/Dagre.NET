@@ -87,6 +87,7 @@ namespace Dagre
                     }
                 }
             }
+
         }
 
         public static void normalizeEdge(DagreGraph g, dynamic e)

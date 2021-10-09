@@ -71,7 +71,7 @@ namespace Dagre
                 parent = g.parent((string)parent);
                 vPath.Add(parent);
             }
-            while (parent != null && (postorderNums[parent].low > low || lim > postorderNums[parent].lim));
+            while (parent != null && (postorderNums[parent]["low"] > low || lim > postorderNums[parent]["lim"]));
             var lca = parent;
             // Traverse from w to LCA
             parent = w;

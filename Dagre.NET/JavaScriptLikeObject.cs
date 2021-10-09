@@ -86,7 +86,8 @@ namespace Dagre
                 }
                 else if (digitsKeys[m] == key)
                 {
-                    throw new DagreException("duplicate key");
+                    return m;
+                    //throw new DagreException("duplicate key");
                 }
                 else
                 {
@@ -195,13 +196,27 @@ namespace Dagre
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
+            //throw new NotImplementedException();
+
             return dic.GetEnumerator();
 
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
+            //return new JavaDicEnumerator(this);
+            throw new NotImplementedException();
             return dic.GetEnumerator();
+        }
+
+        public static JavaScriptLikeObject FromObject(object p)
+        {
+            JavaScriptLikeObject ret = new JavaScriptLikeObject();
+            foreach (var item in p.GetType().GetProperties())
+            {
+                ret.Add(item.Name, item.GetValue(p));
+            }
+            return ret;
         }
     }
 }

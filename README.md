@@ -2,7 +2,7 @@
 
 C# port of https://github.com/dagrejs/dagre
 
-Available as NuGet Package: https://www.nuget.org/packages/Dagre.NET/1.0.0.4
+Available as NuGet Package: https://www.nuget.org/packages/Dagre.NET/1.0.0.6
 
 ## Usage
 Simple test:

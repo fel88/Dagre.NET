@@ -6,16 +6,29 @@ namespace Dagre
     public class addBorderSegments
     {
 
-        public static void addBorderNode(DagreGraph g, string prop, string prefix, object sg, DagreNode sgNode, int rank)
+        public static void addBorderNode(DagreGraph g, string prop, string prefix, dynamic sg, dynamic sgNode, int rank)
         {
-            /*var label = { width: 0, height: 0, rank: rank, borderType: prop };
-        var prev = sgNode[prop][rank - 1];
+            var label = new JavaScriptLikeObject();
+            label.Add("width", 0);
+            label.Add("height", 0);
+            label.Add("rank", rank);
+            label.Add("borderType", prop);
+
+            dynamic prev = null;
+            if (sgNode.ContainsKey(prop) && sgNode[prop] != null)
+            {
+                if (sgNode[prop].ContainsKey((rank - 1).ToString()))
+                    prev = sgNode[prop][(rank - 1).ToString()];
+            }
         var curr = util.addDummyNode(g, "border", label, prefix);
-        sgNode[prop][rank] = curr;
+            sgNode[prop][rank.ToString()] = curr;
   g.setParent(curr, sg);
-  if (prev) {
-    g.setEdge(prev, curr, { weight: 1 });
-  }*/
+            if (prev != null)
+            {
+                JavaScriptLikeObject j1 = new JavaScriptLikeObject();
+                j1.Add("weight", 1);
+                g.setEdge(new object[] { prev, curr, j1 });
+            }
         }
 
 

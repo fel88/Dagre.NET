@@ -4,6 +4,7 @@ namespace Dagre
 {
     public class DagreInputNode
     {
+        public DagreInputNode Group;
         public List<DagreInputNode> Childs = new List<DagreInputNode>();
         public List<DagreInputNode> Parents = new List<DagreInputNode>();
         public object Tag;
